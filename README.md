@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PT Prima Paper Indonesia Website
 
-## Getting Started
+Website company profile untuk PT Prima Paper Indonesia menggunakan Next.js 14 dan Tailwind CSS.
 
-First, run the development server:
+## Teknologi yang Digunakan
+
+- [Next.js 14](https://nextjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [React](https://reactjs.org/)
+
+## Persyaratan Sistem
+
+- Node.js 18.17 atau versi lebih baru
+- npm atau yarn sebagai package manager
+
+## Cara Instalasi
+
+1. Clone repository ini
+bash
+git clone [url-repository]
+
+2. Masuk ke direktori project
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd [nama-folder-project]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Install dependencies
+```bash
+npm install
+# atau
+yarn install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. Jalankan development server
+```bash
+npm run dev
+# atau
+yarn dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+5. Buka [http://localhost:3000](http://localhost:3000) di browser untuk melihat hasilnya
 
-## Learn More
+## Struktur Project
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/                    # App router Next.js
+│   ├── page.tsx           # Homepage
+│   ├── about/             # Halaman About
+│   ├── products/          # Halaman Products
+│   ├── blog/              # Halaman Blog
+│   └── contact/           # Halaman Contact
+├── components/            # React components
+│   ├── layout/           # Layout components (Navbar, Footer)
+│   ├── home/             # Components untuk homepage
+│   └── shared/           # Shared/reusable components
+├── lib/                   # Utility functions
+└── types/                # TypeScript type definitions
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Fitur
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- ✅ SEO Friendly dengan metadata yang optimal
+- 📱 Fully Responsive Design
+- 🎨 Modern UI dengan Tailwind CSS
+- ⚡ Performa Optimal dengan Next.js
+- 🔍 SEO Optimized
+- 📝 Blog System
+- 📞 Contact Form
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Project ini dapat di-deploy menggunakan [Vercel](https://vercel.com) dengan mudah:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+# atau
+yarn build
+```
+
+## Kontribusi
+
+Silakan buat pull request untuk kontribusi. Untuk perubahan besar, harap buka issue terlebih dahulu untuk mendiskusikan perubahan yang diinginkan.
+
+## Lisensi
+
+[MIT](https://choosealicense.com/licenses/mit/)
