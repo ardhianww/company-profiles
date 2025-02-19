@@ -19,12 +19,12 @@ Website company profile untuk PT Prima Paper Indonesia menggunakan Next.js 14 da
 1. Clone repository ini
    
 ```bash
-git clone [url-repository]
+git clone https://github.com/ardhianww/company-profiles.git
 ```
 2. Masuk ke direktori project
 
 ```bash
-cd [nama-folder-project]
+cd company-profiles
 ```
 
 3. Install dependencies
