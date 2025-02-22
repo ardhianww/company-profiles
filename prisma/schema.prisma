@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model product {
+  id          String   @id
+  name        String
+  description String   @db.Text
+  specs       Json
+  image       String?
+  price       Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+}
+
+model testimonial {
+  id        String   @id
+  name      String
+  company   String
+  message   String   @db.Text
+  rating    Int
+  image     String?
+  createdAt DateTime @default(now())
+}
+
+model visitor {
+  id        String   @id
+  name      String
+  email     String
+  phone     String?
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model blog {
+  id        String   @id
+  title     String
+  content   String   @db.Text
+  image     String?
+  author    String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}

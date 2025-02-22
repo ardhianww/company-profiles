@@ -1,67 +1,17 @@
 import { Metadata } from 'next'
 import Image from 'next/image'
+import { prisma } from '@/lib/prisma'
 
 export const metadata: Metadata = {
   title: 'Produk | PT Prima Paper Indonesia - Produsen Karton Box Terpercaya',
   description: 'Berbagai jenis karton box dan kardus berkualitas dengan spesifikasi yang dapat disesuaikan untuk kebutuhan packaging bisnis Anda.',
 }
 
-const products = [
-  {
-    id: 1,
-    name: 'Regular Slotted Container (RSC)',
-    description: 'Box standar dengan flap atas dan bawah yang sama panjang. Cocok untuk berbagai kebutuhan packaging.',
-    specs: [
-      'Ukuran: Custom',
-      'Ketebalan: 3mm - 7mm',
-      'Material: Single/Double Wall',
-      'Flute: B/C/E Flute',
-      'Min. Order: 100 pcs'
-    ],
-    image: '/images/products/rsc-box.jpg' // Anda perlu menambahkan gambar
-  },
-  {
-    id: 2,
-    name: 'Die Cut Box',
-    description: 'Box dengan desain khusus yang dipotong sesuai kebutuhan. Ideal untuk produk dengan bentuk unik.',
-    specs: [
-      'Ukuran: Custom',
-      'Ketebalan: 2mm - 5mm',
-      'Material: Single Wall',
-      'Flute: E Flute',
-      'Min. Order: 500 pcs'
-    ],
-    image: '/images/products/die-cut.jpg'
-  },
-  {
-    id: 3,
-    name: 'Double Wall Box',
-    description: 'Box dengan dinding ganda untuk perlindungan ekstra. Cocok untuk barang berat atau membutuhkan proteksi tinggi.',
-    specs: [
-      'Ukuran: Custom',
-      'Ketebalan: 6mm - 8mm',
-      'Material: Double Wall',
-      'Flute: BC Flute',
-      'Min. Order: 100 pcs'
-    ],
-    image: '/images/products/double-wall.jpg'
-  },
-  {
-    id: 4,
-    name: 'Folding Carton',
-    description: 'Kardus lipat yang efisien dalam penyimpanan. Ideal untuk retail packaging.',
-    specs: [
-      'Ukuran: Custom',
-      'Ketebalan: 2mm - 3mm',
-      'Material: Single Wall',
-      'Flute: E Flute',
-      'Min. Order: 1000 pcs'
-    ],
-    image: '/images/products/folding.jpg'
-  }
-]
+export default async function ProductsPage() {
+  const products = await prisma.product.findMany({
+    orderBy: { createdAt: 'desc' }
+  });
 
-export default function ProductsPage() {
   return (
     <div className="py-24 bg-gray-50">
       <div className="container mx-auto px-4">
