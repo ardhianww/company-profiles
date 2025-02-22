@@ -19,7 +19,7 @@ Website company profile untuk PT Prima Paper Indonesia menggunakan **Next.js 15*
 
 ### **1️⃣ Clone Repository**
 ```sh
-git clone https://github.com/username/company-profiles.git
+git clone https://github.com/ardhianww/company-profiles.git
 cd company-profiles
 ```
 
