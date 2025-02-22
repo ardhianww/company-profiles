@@ -43,24 +43,6 @@ yarn dev
 
 5. Buka [http://localhost:3000](http://localhost:3000) di browser untuk melihat hasilnya
 
-## Struktur Project
-
-```
-src/
-├── app/                    # App router Next.js
-│   ├── page.tsx           # Homepage
-│   ├── about/             # Halaman About
-│   ├── products/          # Halaman Products
-│   ├── blog/              # Halaman Blog
-│   └── contact/           # Halaman Contact
-├── components/            # React components
-│   ├── layout/           # Layout components (Navbar, Footer)
-│   ├── home/             # Components untuk homepage
-│   └── shared/           # Shared/reusable components
-├── lib/                   # Utility functions
-└── types/                # TypeScript type definitions
-```
-
 ## Fitur
 
 - ✅ SEO Friendly dengan metadata yang optimal
