@@ -29,11 +29,22 @@ npm install
 ```
 
 ### **3️⃣ Konfigurasi Database**
-1. **Buat file `.env` di root proyek**, lalu tambahkan koneksi MySQL:
+1. Pastikan MySQL sudah terinstall di sistem Anda.
+
+2. Buat database dengan nama company_db atau sesuaikan dengan preferensi Anda.
+
+3. Salin konfigurasi .env:
+   ```env
+   cp .env.example .env
+    ```
+   
+4. Konfigurasi **DATABASE_URL** pada file .env::
    ```env
    DATABASE_URL="mysql://user:password@localhost:3306/company_db"
    ```
-2. **Setup Prisma**
+   Gantilah user, password, dan company_db sesuai dengan konfigurasi MySQL Anda.
+   
+5. **Setup Prisma**
    ```sh
    npx prisma migrate dev --name init
    npx prisma generate
