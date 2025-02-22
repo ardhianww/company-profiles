@@ -1,6 +1,8 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Toast from "@/components/Toast";
 
 interface Product {
   id: string;
@@ -17,6 +19,7 @@ export default function ProductManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' as 'success' | 'error' });
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -25,7 +28,6 @@ export default function ProductManagement() {
     image: ""
   });
 
-  // Fetch products
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -40,7 +42,6 @@ export default function ProductManagement() {
     }
   };
 
-  // Add Product
   const addProduct = async () => {
     try {
       const response = await fetch('/api/products', {
@@ -59,13 +60,21 @@ export default function ProductManagement() {
       router.refresh();
       await fetchProducts();
       closeForm();
+      setToast({
+        show: true,
+        message: 'Produk berhasil disimpan',
+        type: 'success'
+      });
     } catch (error) {
       console.error('Error adding product:', error);
-      alert('Failed to add product');
+      setToast({
+        show: true,
+        message: 'Gagal menambahkan produk',
+        type: 'error'
+      });
     }
   };
 
-  // Update Product
   const updateProduct = async () => {
     if (!selectedProduct) return;
 
@@ -86,18 +95,34 @@ export default function ProductManagement() {
       router.refresh();
       await fetchProducts();
       closeForm();
+      setToast({
+        show: true,
+        message: 'Produk berhasil diupdate',
+        type: 'success'
+      });
     } catch (error) {
       console.error('Error updating product:', error);
-      alert('Failed to update product');
+      setToast({
+        show: true,
+        message: 'Gagal mengupdate produk',
+        type: 'error'
+      });
     }
   };
 
-  // Delete Product
-  const deleteProduct = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
+
+  const handleDeleteClick = (id: string) => {
+    setProductToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!productToDelete) return;
 
     try {
-      const response = await fetch(`/api/products/${id}`, {
+      const response = await fetch(`/api/products/${productToDelete}`, {
         method: 'DELETE',
       });
 
@@ -105,41 +130,29 @@ export default function ProductManagement() {
 
       router.refresh();
       await fetchProducts();
+      setToast({
+        show: true,
+        message: 'Produk berhasil dihapus',
+        type: 'success'
+      });
     } catch (error) {
       console.error('Error deleting product:', error);
-      alert('Failed to delete product');
+      setToast({
+        show: true,
+        message: 'Gagal menghapus produk',
+        type: 'error'
+      });
+    } finally {
+      setShowDeleteModal(false);
+      setProductToDelete(null);
     }
   };
-
   // Form handlers
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
-    }));
-  };
-
-  const addSpec = () => {
-    setFormData(prev => ({
-      ...prev,
-      specs: [...prev.specs, ""]
-    }));
-  };
-
-  const updateSpec = (index: number, value: string) => {
-    const newSpecs = [...formData.specs];
-    newSpecs[index] = value;
-    setFormData(prev => ({
-      ...prev,
-      specs: newSpecs
-    }));
-  };
-
-  const removeSpec = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      specs: prev.specs.filter((_, i) => i !== index)
     }));
   };
 
@@ -155,106 +168,150 @@ export default function ProductManagement() {
       image: ""
     });
   };
-
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Manajemen Produk</h1>
-      <button onClick={() => setShowModal(true)} className="bg-blue-500 text-white px-4 py-2 mb-4">
-        + Tambah Produk
-      </button>
-
-      {/* 🏷️ TABEL PRODUK */}
-      <table className="w-full bg-white shadow-md">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="p-2">Nama Produk</th>
-            <th className="p-2">Harga</th>
-            <th className="p-2">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product) => (
-            <tr key={product.id} className="border-t">
-              <td className="p-2">{product.name}</td>
-              <td className="p-2">Rp {product.price}</td>
-              <td className="p-2">
-                <button onClick={() => {
-                  setEditMode(true);
-                  setSelectedProduct(product);
-                  setFormData({
-                    name: product.name,
-                    description: product.description,
-                    specs: product.specs,
-                    price: product.price.toString(),
-                    image: product.image || ""
-                  });
-                  setShowModal(true);
-                }} className="bg-yellow-500 text-white px-2 py-1 mr-2">
-                  Edit
-                </button>
-                <button onClick={() => deleteProduct(product.id)} className="bg-red-500 text-white px-2 py-1">
-                  Hapus
-                </button>
-              </td>
+    <div className="p-6">
+      <Toast
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ ...toast, show: false })}
+      />
+      <div>
+        <h1 className="text-2xl font-bold mb-4">Manajemen Produk</h1>
+        <button onClick={() => setShowModal(true)} className="bg-blue-500 text-white px-4 py-2 mb-4">
+          + Tambah Produk
+        </button>
+        {/* 🏷️ TABEL PRODUK */}
+        <table className="w-full bg-white shadow-md">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="p-2">Nama Produk</th>
+              <th className="p-2">Harga</th>
+              <th className="p-2">Aksi</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* 🏷️ MODAL FORM (TAMBAH/EDIT PRODUK) */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-bold mb-4">{editMode ? "Edit Produk" : "Tambah Produk"}</h2>
-            <input
-              type="text"
-              placeholder="Nama Produk"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              className="border p-2 mb-2 w-full"
-            />
-            <input
-              type="text"
-              placeholder="Deskripsi"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              className="border p-2 mb-2 w-full"
-            />
-            <input
-              type="number"
-              placeholder="Harga"
-              name="price"
-              value={formData.price}
-              onChange={handleInputChange}
-              className="border p-2 mb-2 w-full"
-            />
-            <input
-              type="text"
-              placeholder="Gambar URL"
-              name="image"
-              value={formData.image}
-              onChange={handleInputChange}
-              className="border p-2 mb-2 w-full"
-            />
-            <div className="flex justify-end">
-              <button onClick={closeForm} className="bg-gray-500 text-white px-4 py-2 mr-2">
-                Batal
-              </button>
-              {editMode ? (
-                <button onClick={updateProduct} className="bg-green-500 text-white px-4 py-2">
-                  Simpan Edit
+          </thead>
+          <tbody>
+            {products.map((product) => (
+              <tr key={product.id} className="border-t">
+                <td className="p-2">{product.name}</td>
+                <td className="p-2">Rp {product.price}</td>
+                <td className="p-2">
+                  <button
+                    onClick={() => {
+                      setEditMode(true);
+                      setSelectedProduct(product);
+                      setFormData({
+                        name: product.name,
+                        description: product.description,
+                        specs: product.specs,
+                        price: product.price.toString(),
+                        image: product.image || ""
+                      });
+                      setShowModal(true);
+                    }}
+                    className="bg-yellow-500 text-white px-2 py-1 mr-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(product.id)}
+                    className="bg-red-500 text-white px-2 py-1"
+                  >
+                    Hapus
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {/* 🏷️ MODAL FORM (TAMBAH/EDIT PRODUK) */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <h2 className="text-xl font-bold mb-4">{editMode ? "Edit Produk" : "Tambah Produk"}</h2>
+              <input
+                type="text"
+                placeholder="Nama Produk"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                className="border p-2 mb-2 w-full"
+              />
+              <input
+                type="text"
+                placeholder="Deskripsi"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                className="border p-2 mb-2 w-full"
+              />
+              <input
+                type="number"
+                placeholder="Harga"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                className="border p-2 mb-2 w-full"
+              />
+              <input
+                type="text"
+                placeholder="Gambar URL"
+                name="image"
+                value={formData.image}
+                onChange={handleInputChange}
+                className="border p-2 mb-2 w-full"
+              />
+              <div className="flex justify-end">
+                <button
+                  onClick={closeForm}
+                  className="bg-gray-500 text-white px-4 py-2 mr-2"
+                >
+                  Batal
                 </button>
-              ) : (
-                <button onClick={addProduct} className="bg-blue-500 text-white px-4 py-2">
-                  Tambah Produk
-                </button>
-              )}
+                {editMode ? (
+                  <button
+                    onClick={updateProduct}
+                    className="bg-green-500 text-white px-4 py-2"
+                  >
+                    Simpan Edit
+                  </button>
+                ) : (
+                  <button
+                    onClick={addProduct}
+                    className="bg-blue-500 text-white px-4 py-2"
+                  >
+                    Tambah Produk
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center transition-opacity duration-300">
+            <div className="bg-white p-6 rounded-lg shadow-lg transform transition-all duration-300 scale-100">
+              <h3 className="text-lg font-semibold mb-4">Konfirmasi Penghapusan</h3>
+              <p className="text-gray-600 mb-6">Anda yakin ingin menghapus?</p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  Tidak
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                >
+                  Ya
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

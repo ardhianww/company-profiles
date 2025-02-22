@@ -22,7 +22,7 @@ export default async function BlogPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 gap-8">
           {blogs.map((blog) => (
             <article 
               key={blog.id}
@@ -75,4 +75,4 @@ export default async function BlogPage() {
       </div>
     </div>
   )
-} 
+}

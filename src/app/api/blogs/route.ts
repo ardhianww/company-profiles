@@ -26,6 +26,7 @@ export async function POST(request: Request) {
         image: body.image,
         author: body.author,
         slug: body.slug,
+        createdAt: new Date(),
         updatedAt: new Date(),
       }
     });
@@ -36,4 +37,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-} 
+}

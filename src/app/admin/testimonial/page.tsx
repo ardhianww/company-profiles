@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Toast from "@/components/Toast";
 
 interface Testimonial {
   id: string;
@@ -18,6 +19,7 @@ export default function TestimonialManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedTestimonial, setSelectedTestimonial] = useState<Testimonial | null>(null);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' as 'success' | 'error' });
   const [formData, setFormData] = useState({
     name: "",
     company: "",
@@ -39,7 +41,35 @@ export default function TestimonialManagement() {
       console.error('Error fetching testimonials:', error);
     }
   };
+  const handleDeleteConfirm = async () => {
+    if (!testimonialToDelete) return;
 
+    try {
+      const response = await fetch(`/api/testimonials/${testimonialToDelete}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete testimonial');
+
+      router.refresh();
+      await fetchTestimonials();
+      setToast({
+        show: true,
+        message: 'Testimoni berhasil dihapus',
+        type: 'success'
+      });
+    } catch (error) {
+      console.error('Error deleting testimonial:', error);
+      setToast({
+        show: true,
+        message: 'Gagal menghapus testimoni',
+        type: 'error'
+      });
+    } finally {
+      setShowDeleteModal(false);
+      setTestimonialToDelete(null);
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -66,30 +96,27 @@ export default function TestimonialManagement() {
       router.refresh();
       await fetchTestimonials();
       closeForm();
+      setToast({
+        show: true,
+        message: editMode ? 'Testimoni berhasil diupdate' : 'Testimoni berhasil disimpan',
+        type: 'success'
+      });
     } catch (error) {
       console.error('Error saving testimonial:', error);
-      alert('Failed to save testimonial');
-    }
-  };
-
-  const deleteTestimonial = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this testimonial?')) return;
-
-    try {
-      const response = await fetch(`/api/testimonials/${id}`, {
-        method: 'DELETE',
+      setToast({
+        show: true,
+        message: 'Gagal menyimpan testimoni',
+        type: 'error'
       });
-
-      if (!response.ok) throw new Error('Failed to delete testimonial');
-
-      router.refresh();
-      await fetchTestimonials();
-    } catch (error) {
-      console.error('Error deleting testimonial:', error);
-      alert('Failed to delete testimonial');
     }
   };
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [testimonialToDelete, setTestimonialToDelete] = useState<string | null>(null);
 
+  const handleDeleteClick = (id: string) => {
+    setTestimonialToDelete(id);
+    setShowDeleteModal(true);
+  };
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -114,7 +141,13 @@ export default function TestimonialManagement() {
   };
 
   return (
-    <div>
+    <div className="p-6">
+      <Toast
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ ...toast, show: false })}
+      />
       <h1 className="text-2xl font-bold mb-4">Manajemen Testimoni</h1>
       <button 
         onClick={() => setShowModal(true)} 
@@ -150,7 +183,7 @@ export default function TestimonialManagement() {
                   Edit
                 </button>
                 <button
-                  onClick={() => deleteTestimonial(testimonial.id)}
+                  onClick={() => handleDeleteClick(testimonial.id)}
                   className="text-red-500 hover:text-red-700"
                 >
                   Hapus
@@ -259,6 +292,30 @@ export default function TestimonialManagement() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center transition-opacity duration-300">
+          <div className="bg-white p-6 rounded-lg shadow-lg transform transition-all duration-300 scale-100">
+            <h3 className="text-lg font-semibold mb-4">Konfirmasi Penghapusan</h3>
+            <p className="text-gray-600 mb-6">Anda yakin ingin menghapus?</p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Tidak
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+              >
+                Ya
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-} 
+}

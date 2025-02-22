@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Toast from "@/components/Toast";
 
 interface Blog {
   id: string;
@@ -18,18 +19,19 @@ export default function BlogManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' as 'success' | 'error' });
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     image: "",
     author: "",
-    slug: ""
+    slug: "",
+    createdAt: new Date(),
+    updatedAt: new Date()
   });
-
   useEffect(() => {
     fetchBlogs();
   }, []);
-
   const fetchBlogs = async () => {
     try {
       const response = await fetch('/api/blogs');
@@ -39,7 +41,6 @@ export default function BlogManagement() {
       console.error('Error fetching blogs:', error);
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -49,31 +50,56 @@ export default function BlogManagement() {
         : '/api/blogs';
       
       const method = editMode ? 'PUT' : 'POST';
+      const submitData = {
+        ...formData,
+        updatedAt: new Date()
+      };
       
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submitData),
       });
-
-      if (!response.ok) throw new Error('Failed to save blog');
-
+      const data = await response.json();
+      
+      if (!response.ok) {
+        const errorMessage = data.error || 'Failed to save blog';
+        throw new Error(errorMessage);
+      }
+    
       router.refresh();
       await fetchBlogs();
       closeForm();
+      setToast({
+        show: true,
+        message: editMode ? 'Blog berhasil diupdate' : 'Blog berhasil disimpan',
+        type: 'success'
+      });
     } catch (error) {
       console.error('Error saving blog:', error);
-      alert('Failed to save blog');
+      setToast({
+        show: true,
+        message: error instanceof Error ? error.message : 'Terjadi kesalahan',
+        type: 'error'
+      });
     }
   };
 
-  const deleteBlog = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this blog?')) return;
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [blogToDelete, setBlogToDelete] = useState<string | null>(null);
+
+  const handleDeleteClick = (id: string) => {
+    setBlogToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!blogToDelete) return;
 
     try {
-      const response = await fetch(`/api/blogs/${id}`, {
+      const response = await fetch(`/api/blogs/${blogToDelete}`, {
         method: 'DELETE',
       });
 
@@ -81,12 +107,23 @@ export default function BlogManagement() {
 
       router.refresh();
       await fetchBlogs();
+      setToast({
+        show: true,
+        message: 'Blog berhasil dihapus',
+        type: 'success'
+      });
     } catch (error) {
       console.error('Error deleting blog:', error);
-      alert('Failed to delete blog');
+      setToast({
+        show: true,
+        message: 'Gagal menghapus blog',
+        type: 'error'
+      });
+    } finally {
+      setShowDeleteModal(false);
+      setBlogToDelete(null);
     }
   };
-
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -96,14 +133,12 @@ export default function BlogManagement() {
       [name]: value
     }));
   };
-
   const generateSlug = (title: string) => {
     return title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)+/g, '');
   };
-
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const title = e.target.value;
     setFormData(prev => ({
@@ -112,7 +147,6 @@ export default function BlogManagement() {
       slug: generateSlug(title)
     }));
   };
-
   const closeForm = () => {
     setShowModal(false);
     setEditMode(false);
@@ -122,12 +156,19 @@ export default function BlogManagement() {
       content: "",
       image: "",
       author: "",
-      slug: ""
+      slug: "",
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
   };
-
   return (
-    <div>
+    <div className="p-6">
+      <Toast
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ ...toast, show: false })}
+      />
       <h1 className="text-2xl font-bold mb-4">Manajemen Blog</h1>
       <button 
         onClick={() => setShowModal(true)} 
@@ -135,7 +176,6 @@ export default function BlogManagement() {
       >
         + Tambah Blog
       </button>
-
       <div className="grid gap-4">
         {blogs.map((blog) => (
           <div key={blog.id} className="bg-white p-4 rounded-lg shadow">
@@ -154,7 +194,9 @@ export default function BlogManagement() {
                       content: blog.content,
                       image: blog.image || "",
                       author: blog.author,
-                      slug: blog.slug
+                      slug: blog.slug,
+                      createdAt: new Date(),
+                      updatedAt: new Date()
                     });
                     setShowModal(true);
                   }}
@@ -163,7 +205,7 @@ export default function BlogManagement() {
                   Edit
                 </button>
                 <button
-                  onClick={() => deleteBlog(blog.id)}
+                  onClick={() => handleDeleteClick(blog.id)}
                   className="text-red-500 hover:text-red-700"
                 >
                   Hapus
@@ -174,8 +216,7 @@ export default function BlogManagement() {
           </div>
         ))}
       </div>
-
-      {/* Modal Form */}
+  {/* Modal Form */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-full max-w-2xl">
@@ -256,6 +297,30 @@ export default function BlogManagement() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center transition-opacity duration-300">
+          <div className="bg-white p-6 rounded-lg shadow-lg transform transition-all duration-300 scale-100">
+            <h3 className="text-lg font-semibold mb-4">Konfirmasi Penghapusan</h3>
+            <p className="text-gray-600 mb-6">Anda yakin ingin menghapus?</p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Tidak
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+              >
+                Ya
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-} 
+}
