@@ -1,6 +1,6 @@
 # PT Prima Paper Indonesia Website
 
-Website company profile untuk PT Prima Paper Indonesia menggunakan Next.js 14 dan Tailwind CSS.
+Website company profile untuk PT Prima Paper Indonesia menggunakan **Next.js 15**, **Tailwind CSS**, **Prisma**, dan **MySQL**
 
 ## Teknologi yang Digunakan
 
@@ -8,50 +8,43 @@ Website company profile untuk PT Prima Paper Indonesia menggunakan Next.js 14 da
 - [TypeScript](https://www.typescriptlang.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [React](https://reactjs.org/)
+- [mysql](https://mysql.com/)
 
 ## Persyaratan Sistem
 
 - Node.js 18.17 atau versi lebih baru
 - npm atau yarn sebagai package manager
 
-## Cara Instalasi
+## 🛠️ **Setup & Instalasi**
 
-1. Clone repository ini
-   
-```bash
-git clone https://github.com/ardhianww/company-profiles.git
-```
-2. Masuk ke direktori project
-
-```bash
+### **1️⃣ Clone Repository**
+```sh
+git clone https://github.com/username/company-profiles.git
 cd company-profiles
 ```
 
-3. Install dependencies
-```bash
+### **2️⃣ Install Dependencies**
+```sh
 npm install
-# atau
-yarn install
 ```
 
-4. Jalankan development server
-```bash
+### **3️⃣ Konfigurasi Database**
+1. **Buat file `.env` di root proyek**, lalu tambahkan koneksi MySQL:
+   ```env
+   DATABASE_URL="mysql://user:password@localhost:3306/company_db"
+   ```
+2. **Setup Prisma**
+   ```sh
+   npx prisma migrate dev --name init
+   npx prisma generate
+   ```
+### **4️⃣ Menjalankan Proyek**
+
+Setelah setup selesai, jalankan perintah berikut untuk memulai proyek:
+```sh
 npm run dev
-# atau
-yarn dev
 ```
-
-5. Buka [http://localhost:3000](http://localhost:3000) di browser untuk melihat hasilnya
-
-## Fitur
-
-- ✅ SEO Friendly dengan metadata yang optimal
-- 📱 Fully Responsive Design
-- 🎨 Modern UI dengan Tailwind CSS
-- ⚡ Performa Optimal dengan Next.js
-- 🔍 SEO Optimized
-- 📝 Blog System
-- 📞 Contact Form
+Aplikasi akan berjalan di **http://localhost:3000**
 
 ## Deployment
 
