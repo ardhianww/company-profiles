@@ -4,7 +4,7 @@ Website company profile untuk PT Prima Paper Indonesia menggunakan **Next.js 15*
 
 ## Teknologi yang Digunakan
 
-- [Next.js 14](https://nextjs.org/)
+- [Next.js 15](https://nextjs.org/)
 - [TypeScript](https://www.typescriptlang.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [React](https://reactjs.org/)
