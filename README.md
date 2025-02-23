@@ -71,6 +71,3 @@ yarn build
 
 Silakan buat pull request untuk kontribusi. Untuk perubahan besar, harap buka issue terlebih dahulu untuk mendiskusikan perubahan yang diinginkan.
 
-## Lisensi
-
-[MIT](https://choosealicense.com/licenses/mit/)
